@@ -51,7 +51,8 @@ mod tests {
 
   #[test]
   fn part_1_test() {
-    let input = "1000
+    let input = "\
+1000
 2000
 3000
 
@@ -71,7 +72,8 @@ mod tests {
 
   #[test]
   fn part_1_better_test() {
-    let input = "1000
+    let input = "\
+1000
 2000
 3000
 
@@ -91,7 +93,8 @@ mod tests {
 
   #[test]
   fn part_2_test() {
-    let input = "1000
+    let input = "\
+1000
 2000
 3000
 

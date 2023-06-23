@@ -12,7 +12,8 @@ mod tests {
 
   #[test]
   fn part1_test() {
-    let input = "A Y
+    let input = "\
+A Y
 B X
 C Z";
     assert_eq!(process_part1(input), 15)
