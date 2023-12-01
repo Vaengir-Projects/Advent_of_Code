@@ -19,7 +19,27 @@ pub fn process_part1(input: &str) -> usize {
 }
 
 pub fn process_part2(input: &str) -> usize {
-  todo!();
+  let mut result: usize = 0;
+  let area: Vec<&str> = input.lines().collect();
+  let mut area_left: Vec<&str> = Vec::new();
+  let mut area_right: Vec<&str> = Vec::new();
+  for a in area {
+    let mut iter = a.split(',');
+    area_left = iter.next().unwrap().split("-").map(|x| x).collect();
+    area_right = iter.next().unwrap().split("-").map(|x| x).collect();
+    let left: Vec<usize> = area_left.into_iter().map(|x| x.parse().unwrap()).collect();
+    let right: Vec<usize> = area_right.into_iter().map(|x| x.parse().unwrap()).collect();
+    if left.first() >= right.first() && left.first() <= right.last() {
+      result += 1;
+    } else if left.last() >= right.first() && left.last() <= right.last() {
+      result += 1;
+    } else if left.first() >= right.first() && left.first() <= right.last() {
+      result += 1;
+    } else if right.last() >= left.first() && right.last() <= left.last() {
+      result += 1;
+    }
+  }
+  result
 }
 
 #[cfg(test)]
@@ -41,6 +61,6 @@ mod tests {
 
   #[test]
   fn part2_works() {
-    todo!();
+    assert_eq!(process_part2(INPUT1), 4);
   }
 }
