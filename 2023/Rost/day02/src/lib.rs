@@ -33,8 +33,70 @@ pub fn process_part1(input: &str) -> usize {
   result
 }
 
+#[derive(Debug)]
+pub struct Game {
+  bags: Vec<Cube>,
+}
+
+impl Game {
+  pub fn build(cubes: Vec<&str>) -> Game {
+    let mut created_cubes: Vec<Cube> = Vec::new();
+    for cube in cubes {
+      created_cubes.push(Cube::build(cube));
+    }
+    Game {
+      bags: created_cubes,
+    }
+  }
+
+  pub fn sort(&self) -> u32 {
+    let mut red = 0;
+    let mut green = 0;
+    let mut blue = 0;
+
+    for color in &self.bags {
+      if color.color == "red".to_string() && color.number > red {
+        red = color.number;
+      }
+      if color.color == "green".to_string() && color.number > green {
+        green = color.number;
+      }
+      if color.color == "blue".to_string() && color.number > blue {
+        blue = color.number;
+      }
+    }
+    red * green * blue
+  }
+}
+
+#[derive(Debug)]
+pub struct Cube {
+  color: String,
+  number: u32,
+}
+
+impl Cube {
+  pub fn build(cube: &str) -> Cube {
+    let cube: Vec<&str> = cube.trim().split_whitespace().collect();
+    Cube {
+      color: cube.last().unwrap().to_string(),
+      number: cube.first().unwrap().parse::<u32>().unwrap(),
+    }
+  }
+}
+
 pub fn process_part2(input: &str) -> usize {
-  todo!();
+  let mut result: usize = 0;
+  let lines = input.lines();
+  for line in lines {
+    let mut iter = line.split(':');
+    let _ = iter.next().unwrap();
+    let cubes = iter.next().unwrap().replace(";", ",");
+    let cubes: Vec<&str> = cubes.split(',').collect();
+    let game = Game::build(cubes);
+    result += game.sort() as usize;
+  }
+  result
 }
 
 #[cfg(test)]
@@ -55,6 +117,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
   #[test]
   fn part2_works() {
-    todo!();
+    assert_eq!(process_part2(INPUT1), 2286);
   }
 }
