@@ -1,14 +1,62 @@
-pub fn recursive_num_check(grid: Vec<Vec<char>>) -> usize {
-  todo!();
+use std::ops::Add;
+
+pub fn get_number(grid: &Vec<Vec<char>>, i: usize, j: usize, n: char) -> (u32, usize) {
+  let mut number: String = String::from(n);
+  if grid[i][j + 1].is_digit(10) {
+    number += &grid[i][j + 1].to_string();
+  } else {
+    return (number.parse().unwrap(), number.len());
+  }
+  if grid[i][j + 2].is_digit(10) {
+    number += &grid[i][j + 2].to_string();
+  }
+  (number.parse().unwrap(), number.len())
+}
+
+pub fn has_symbol(grid: &Vec<Vec<char>>, number: u32, length: usize, i: usize, j: usize) -> bool {
+  let mut spaces_to_check: Vec<(i32, i32)> = Vec::new();
+  for x in 0..length + 2 {
+    spaces_to_check.push((i as i32 - 1, j as i32 + x as i32 - 1));
+    spaces_to_check.push((i as i32, j as i32 - 1));
+    spaces_to_check.push((i as i32, j as i32 + length as i32));
+    spaces_to_check.push((i as i32 + 1, j as i32 + x as i32 - 1));
+  }
+  let spaces_to_check: Vec<(i32, i32)> = spaces_to_check
+    .into_iter()
+    .filter(|&(x, y)| x >= 0 && x < grid.len() as i32 && y >= 0 && y < grid[i].len() as i32)
+    .collect();
+  let symbol: Vec<(i32, i32)> = spaces_to_check
+    .into_iter()
+    .filter(|&(x, y)| {
+      grid[x as usize][y as usize] != '.' && !grid[x as usize][y as usize].is_digit(10)
+    })
+    .collect();
+  symbol.len() > 0
 }
 
 pub fn process_part1(input: &str) -> usize {
   let mut result: usize = 0;
   let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+  let mut number: u32 = 0;
+  let mut length: usize = 0;
   for i in 0..grid.len() {
-    for j in 0..grid[i].len() {
+    let mut j = 0;
+    loop {
       if grid[i][j].is_digit(10) {
-        dbg!(grid[i][j], i, j);
+        (number, length) = get_number(&grid, i, j, grid[i][j].clone());
+
+        if has_symbol(&grid, number, length, i, j) {
+          println!("{}", number);
+          result += number as usize;
+        }
+
+        j += length;
+      } else {
+        j += 1;
+      }
+
+      if j >= grid[i].len() {
+        break;
       }
     }
   }
@@ -35,9 +83,19 @@ mod tests {
 ...$.*....
 .664.598..";
 
+  const INPUT3: &str = "\
+........810........................*.......805.......100..*...........999.....743......169............477...961......973............$.......
+.574...........6*262........398....204......*.....%.......525...........*.........................412..*.........376...*.@43....=......=....
+....*836....................................25...619............658.....172.......................*...408...........*........%...776..802...";
+
   #[test]
   fn part1_works() {
     assert_eq!(process_part1(INPUT1), 4361);
+  }
+
+  #[test]
+  fn part1_works_with_single_digits() {
+    assert_eq!(process_part1(INPUT3), 9294);
   }
 
   #[test]
