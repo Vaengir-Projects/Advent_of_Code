@@ -1,5 +1,3 @@
-use std::ops::Add;
-
 pub fn get_number(grid: &Vec<Vec<char>>, i: usize, j: usize, n: char) -> (u32, usize) {
   let mut number: String = String::from(n);
   if grid[i][j + 1].is_digit(10) {
@@ -13,7 +11,7 @@ pub fn get_number(grid: &Vec<Vec<char>>, i: usize, j: usize, n: char) -> (u32, u
   (number.parse().unwrap(), number.len())
 }
 
-pub fn has_symbol(grid: &Vec<Vec<char>>, number: u32, length: usize, i: usize, j: usize) -> bool {
+pub fn has_symbol(grid: &Vec<Vec<char>>, length: usize, i: usize, j: usize) -> bool {
   let mut spaces_to_check: Vec<(i32, i32)> = Vec::new();
   for x in 0..length + 2 {
     spaces_to_check.push((i as i32 - 1, j as i32 + x as i32 - 1));
@@ -45,7 +43,7 @@ pub fn process_part1(input: &str) -> usize {
       if grid[i][j].is_digit(10) {
         (number, length) = get_number(&grid, i, j, grid[i][j].clone());
 
-        if has_symbol(&grid, number, length, i, j) {
+        if has_symbol(&grid, length, i, j) {
           println!("{}", number);
           result += number as usize;
         }
