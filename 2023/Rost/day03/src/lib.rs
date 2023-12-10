@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 pub fn get_number(grid: &Vec<Vec<char>>, i: usize, j: usize, n: char) -> (u32, usize) {
   let mut number: String = String::from(n);
   if grid[i][j + 1].is_digit(10) {
@@ -61,8 +63,98 @@ pub fn process_part1(input: &str) -> usize {
   result
 }
 
+#[derive(Debug, Clone)]
+pub struct Gear {
+  gear: bool,
+  first: Option<usize>,
+  second: Option<usize>,
+}
+
+impl Gear {
+  pub fn build(gear: bool, first: Option<usize>, second: Option<usize>) -> Gear {
+    Gear {
+      gear,
+      first,
+      second,
+    }
+  }
+}
+
+pub fn create_number(grid: &Vec<Vec<char>>, i: usize, j: usize) -> usize {
+  let mut result = String::from(grid[i][j]);
+  if grid[i][j - 1].is_digit(10) {
+    result = format!("{}{}", grid[i][j - 1], result);
+    if grid[i][j - 2].is_digit(10) {
+      result = format!("{}{}", grid[i][j - 2], result);
+    }
+  }
+  if grid[i][j + 1].is_digit(10) && j + 1 < grid[i].len() {
+    result = format!("{}{}", result, grid[i][j + 1]);
+    if grid[i][j + 2].is_digit(10) && j + 2 < grid[i].len() {
+      result = format!("{}{}", result, grid[i][j + 2]);
+    }
+  }
+
+  result.parse::<usize>().unwrap()
+}
+
+pub fn check_gears(grid: &Vec<Vec<char>>, i: usize, j: usize) -> Gear {
+  let area_to_check: Vec<(i32, i32)> = vec![
+    (i as i32 - 1, j as i32 - 1),
+    (i as i32 - 1, j as i32),
+    (i as i32 - 1, j as i32 + 1),
+    (i as i32, j as i32 - 1),
+    (i as i32, j as i32),
+    (i as i32, j as i32 + 1),
+    (i as i32 + 1, j as i32 - 1),
+    (i as i32 + 1, j as i32),
+    (i as i32 + 1, j as i32 + 1),
+  ];
+  let area_to_check: Vec<(i32, i32)> = area_to_check
+    .into_iter()
+    .filter(|&(x, y)| x >= 0 && x < grid.len() as i32 && y >= 0 && y < grid[i].len() as i32)
+    .collect();
+
+  let mut numbers: HashSet<usize> = HashSet::new();
+
+  for area in area_to_check {
+    if grid[area.0 as usize][area.1 as usize].is_digit(10) {
+      numbers.insert(create_number(grid, area.0 as usize, area.1 as usize));
+    }
+  }
+  if numbers.len() == 2 {
+    let gear = true;
+    return Gear::build(
+      gear,
+      Some(numbers.iter().next().unwrap().clone()),
+      Some(numbers.iter().nth(1).unwrap().clone()),
+    );
+  } else {
+    let gear = false;
+    Gear::build(gear, None, None)
+  }
+}
+
 pub fn process_part2(input: &str) -> usize {
-  todo!();
+  let mut result: usize = 0;
+  let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+  for i in 0..grid.len() {
+    let mut j = 0;
+    loop {
+      if grid[i][j] == '*' {
+        let gear: Gear = check_gears(&grid, i, j);
+        if gear.gear {
+          result += gear.first.unwrap() * gear.second.unwrap();
+        }
+      }
+      j += 1;
+
+      if j >= grid[i].len() {
+        break;
+      }
+    }
+  }
+  result
 }
 
 #[cfg(test)]
@@ -98,6 +190,6 @@ mod tests {
 
   #[test]
   fn part2_works() {
-    todo!();
+    assert_eq!(process_part2(INPUT1), 467835);
   }
 }
