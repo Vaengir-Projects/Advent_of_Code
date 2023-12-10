@@ -17,3 +17,4 @@ Cargo.lock
 .env
 
 input.txt
+!rost_template/input.txt
