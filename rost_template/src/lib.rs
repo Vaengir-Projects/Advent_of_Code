@@ -1,22 +1,22 @@
 pub fn process_part1(input: &str) -> usize {
-  todo!();
+    todo!();
 }
 
 pub fn process_part2(input: &str) -> usize {
-  todo!();
+    todo!();
 }
 
 #[cfg(test)]
 mod tests {
-  use super::*;
+    use super::*;
 
-  #[test]
-  fn part1_works() {
-    todo!();
-  }
+    #[test]
+    fn part1_works() {
+        todo!();
+    }
 
-  #[test]
-  fn part2_works() {
-    todo!();
-  }
+    #[test]
+    fn part2_works() {
+        todo!();
+    }
 }
