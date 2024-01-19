@@ -1,3 +1,5 @@
+use std::f32::INFINITY;
+
 pub fn process_part1(input: &str) -> usize {
     let sections: Vec<&str> = input.split("\n\n").collect();
     let seeds: Vec<usize> = sections[0]
@@ -33,7 +35,58 @@ pub fn process_part1(input: &str) -> usize {
 }
 
 pub fn process_part2(input: &str) -> usize {
-    todo!();
+    let sections: Vec<&str> = input.split("\n\n").collect();
+    let seed_range: Vec<usize> = sections[0]
+        .split_whitespace()
+        .flat_map(|x| x.parse::<usize>())
+        .collect();
+    let seed_range: Vec<(usize, usize)> = seed_range
+        .chunks(2)
+        .filter_map(|chunk| {
+            if chunk.len() == 2 {
+                Some((chunk[0], chunk[1]))
+            } else {
+                None
+            }
+        })
+        .collect();
+    let mut seeds: Vec<usize> = Vec::new();
+    for (start, range) in seed_range {
+        let mut current = start;
+        while current < start + range {
+            seeds.push(current);
+            current += 1;
+        }
+    }
+    let mut result: usize = INFINITY as usize;
+    for mut seed in seeds {
+        let maps: Vec<Vec<Vec<usize>>> = sections[1..]
+            .iter()
+            .map(|map| {
+                map.lines()
+                    .map(|line| {
+                        line.split_whitespace()
+                            .flat_map(|x| x.parse::<usize>())
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        for mut map in maps {
+            map.retain(|x| !x.is_empty());
+            for numbers in map {
+                if seed >= numbers[1] && seed <= numbers[1] + numbers[2] {
+                    seed = seed + numbers[0] - numbers[1];
+                    break;
+                }
+            }
+        }
+        if seed < result {
+            result = seed;
+        }
+        dbg!(seed, result);
+    }
+    result
 }
 
 #[cfg(test)]
@@ -82,6 +135,6 @@ humidity-to-location map:
 
     #[test]
     fn part2_works() {
-        todo!();
+        assert_eq!(process_part2(INPUT1), 46);
     }
 }
