@@ -42,8 +42,50 @@ pub fn process_part1(input: &str) -> usize {
     result
 }
 
-pub fn process_part2(_input: &str) -> usize {
-    todo!();
+pub fn process_part2(input: &str) -> usize {
+    let times: Vec<usize> = input
+        .lines()
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .flat_map(|part| part.parse::<usize>())
+        .collect();
+    let distances: Vec<usize> = input
+        .lines()
+        .nth(1)
+        .unwrap()
+        .split_whitespace()
+        .flat_map(|part| part.parse::<usize>())
+        .collect();
+    let time = times
+        .iter()
+        .map(|&num| num.to_string())
+        .collect::<Vec<String>>()
+        .join("")
+        .parse::<usize>()
+        .unwrap();
+    let distance = distances
+        .iter()
+        .map(|&num| num.to_string())
+        .collect::<Vec<String>>()
+        .join("")
+        .parse::<usize>()
+        .unwrap();
+    let mut min: usize = 0;
+    let mut max: usize = 0;
+    for i in 1..time {
+        if i * (time - i) > distance {
+            min = i;
+            break;
+        }
+    }
+    for i in (1..time).rev() {
+        if i * (time - i) > distance {
+            max = i;
+            break;
+        }
+    }
+    max - min + 1
 }
 
 #[cfg(test)]
@@ -61,6 +103,6 @@ Distance:  9  40  200";
 
     #[test]
     fn part2_works() {
-        todo!();
+        assert_eq!(process_part2(INPUT1), 71503);
     }
 }
