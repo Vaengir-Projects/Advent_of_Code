@@ -11,7 +11,7 @@ impl Race {
 }
 
 pub fn process_part1(input: &str) -> usize {
-    let result: usize = 0;
+    let mut result: usize = 1;
     let times: Vec<usize> = input
         .lines()
         .next()
@@ -30,7 +30,15 @@ pub fn process_part1(input: &str) -> usize {
     for (i, _) in times.iter().enumerate() {
         races.push(Race::new(times[i], distances[i]));
     }
-    dbg!(races);
+    for race in races.iter() {
+        let mut wins: usize = 0;
+        for i in 1..race.time {
+            if i * (race.time - i) > race.distance {
+                wins += 1;
+            }
+        }
+        result *= wins;
+    }
     result
 }
 
