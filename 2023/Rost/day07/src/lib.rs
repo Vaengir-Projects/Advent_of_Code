@@ -143,8 +143,82 @@ pub fn process_part1(input: &str) -> usize {
     result
 }
 
-pub fn process_part2(_input: &str) -> usize {
-    todo!();
+impl Hand {
+    pub fn new2(line: &str) -> Hand {
+        let cards: Vec<char> = line.split_whitespace().next().unwrap().chars().collect();
+        let card_values: Vec<usize> = cards
+            .iter()
+            .map(|&c| match c {
+                'A' => 13,
+                'K' => 12,
+                'Q' => 11,
+                'T' => 10,
+                '9' => 9,
+                '8' => 8,
+                '7' => 7,
+                '6' => 6,
+                '5' => 5,
+                '4' => 4,
+                '3' => 3,
+                '2' => 2,
+                'J' => 1,
+                _ => panic!("Input not a valid card"),
+            })
+            .collect();
+        let hand_type: HandType;
+        let bid: usize = line
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse::<usize>()
+            .unwrap();
+        let mut char_counts = HashMap::new();
+        for &c in &cards {
+            let count = char_counts.entry(c).or_insert(0);
+            *count += 1;
+        }
+        let jokers = char_counts.remove(&'J').unwrap_or(0);
+        if char_counts.values().any(|&c| c + jokers == 5) || jokers == 5 {
+            hand_type = HandType::Five;
+        } else if char_counts.values().any(|&c| c + jokers == 4) {
+            hand_type = HandType::Four;
+        } else if (char_counts.values().filter(|&c| c == &2).count() == 2 && jokers == 1)
+            || (char_counts.values().any(|&c| c == 3) && char_counts.values().any(|&c| c == 2))
+        {
+            hand_type = HandType::FullHouse;
+        } else if char_counts.values().any(|&c| c + jokers == 3)
+            && char_counts.values().filter(|&c| c == &2).count() <= 1
+        {
+            hand_type = HandType::Three;
+        } else if char_counts.values().filter(|&c| c == &2).count() == 2 && jokers == 0 {
+            hand_type = HandType::TwoPair;
+        } else if char_counts.len() == 4 && char_counts.values().any(|&c| c == 2)
+            || char_counts.len() == 4 && jokers == 1
+        {
+            hand_type = HandType::OnePair;
+        } else {
+            hand_type = HandType::HighCard;
+        }
+        Hand {
+            cards: card_values,
+            hand_type,
+            bid,
+        }
+    }
+}
+
+pub fn process_part2(input: &str) -> usize {
+    let mut result: usize = 0;
+    let mut hands: Vec<Hand> = input.lines().map(Hand::new2).collect();
+    hands.sort();
+    // for hand in hands.iter() {
+    //     println!("{:?}, {:?}", hand.cards, hand.bid);
+    // }
+    dbg!(&hands);
+    for (i, hand) in hands.iter().enumerate() {
+        result += (i + 1) * hand.bid;
+    }
+    result
 }
 
 #[cfg(test)]
@@ -165,6 +239,6 @@ QQQJA 483";
 
     #[test]
     fn part2_works() {
-        todo!();
+        assert_eq!(process_part2(INPUT1), 5905);
     }
 }
