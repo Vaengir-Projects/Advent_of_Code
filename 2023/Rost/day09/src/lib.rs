@@ -1,39 +1,39 @@
 #[derive(Debug, Clone)]
-pub struct Node {
+pub struct Node1 {
     value: i32,
-    right: Option<Box<Node>>,
+    right: Option<Box<Node1>>,
 }
 
-impl Node {
+impl Node1 {
     fn parse(input: Vec<i32>) -> Vec<Self> {
         input
             .iter()
-            .map(|num| Node {
+            .map(|num| Node1 {
                 value: *num,
                 right: None,
             })
             .collect()
     }
 
-    fn build_structure(input_nodes: Vec<Node>) -> Vec<Self> {
+    fn build_structure(input_nodes: Vec<Node1>) -> Vec<Self> {
         if input_nodes.iter().all(|x| x.value == 0) {
             return input_nodes;
         } else {
             let nodes = input_nodes[1..]
                 .iter()
                 .enumerate()
-                .map(|(i, _)| Node {
+                .map(|(i, _)| Node1 {
                     value: input_nodes[i + 1].value - input_nodes[i].value,
                     right: Some(Box::new(input_nodes[i + 1].clone())),
                 })
                 .collect();
-            Node::build_structure(nodes)
+            Node1::build_structure(nodes)
         }
     }
 
-    fn get_next(input_nodes: Vec<Node>) -> i32 {
+    fn get_next(input_nodes: Vec<Node1>) -> i32 {
         let mut last = input_nodes.last().unwrap().clone();
-        let mut next: Node = Node {
+        let mut next: Node1 = Node1 {
             value: 0,
             right: None,
         };
@@ -42,7 +42,7 @@ impl Node {
             if last.right.is_none() {
                 return last.value + next.value;
             }
-            next = Node {
+            next = Node1 {
                 value: last.value + next.value,
                 right: None,
             };
@@ -60,15 +60,80 @@ pub fn process_part1(input: &str) -> i32 {
             .into_iter()
             .map(|num| num.parse::<i32>().unwrap())
             .collect();
-        let basic_nodes = Node::parse(basic);
-        let nodes = Node::build_structure(basic_nodes);
-        result += Node::get_next(nodes);
+        let basic_nodes = Node1::parse(basic);
+        let nodes = Node1::build_structure(basic_nodes);
+        result += Node1::get_next(nodes);
     }
     result
 }
 
-pub fn process_part2(_input: &str) -> usize {
-    todo!();
+#[derive(Debug, Clone)]
+struct Node2 {
+    value: i32,
+    left: Option<Box<Node2>>,
+}
+
+impl Node2 {
+    fn parse(input: Vec<i32>) -> Vec<Self> {
+        input
+            .iter()
+            .map(|num| Node2 {
+                value: *num,
+                left: None,
+            })
+            .collect()
+    }
+
+    fn build_structure(input_nodes: Vec<Node2>) -> Vec<Self> {
+        if input_nodes.iter().all(|x| x.value == 0) {
+            return input_nodes;
+        } else {
+            let nodes = input_nodes[1..]
+                .iter()
+                .enumerate()
+                .map(|(i, _)| Node2 {
+                    value: input_nodes[i + 1].value - input_nodes[i].value,
+                    left: Some(Box::new(input_nodes[i].clone())),
+                })
+                .collect();
+            Node2::build_structure(nodes)
+        }
+    }
+
+    fn get_previous(input_nodes: Vec<Node2>) -> i32 {
+        let mut first = input_nodes.first().unwrap().clone();
+        let mut prev: Node2 = Node2 {
+            value: 0,
+            left: None,
+        };
+        first = *first.left.unwrap().clone();
+        loop {
+            if first.left.is_none() {
+                return first.value - prev.value;
+            }
+            prev = Node2 {
+                value: first.value - prev.value,
+                left: None,
+            };
+            first = *first.left.unwrap().clone();
+        }
+    }
+}
+
+pub fn process_part2(input: &str) -> i32 {
+    let mut result: i32 = 0;
+    let lines: Vec<&str> = input.lines().collect();
+    for line in lines {
+        let basic: Vec<i32> = line
+            .split_whitespace()
+            .into_iter()
+            .map(|num| num.parse::<i32>().unwrap())
+            .collect();
+        let basic_nodes = Node2::parse(basic);
+        let nodes = Node2::build_structure(basic_nodes);
+        result += Node2::get_previous(nodes);
+    }
+    result
 }
 
 #[cfg(test)]
@@ -87,6 +152,6 @@ mod tests {
 
     #[test]
     fn part2_works() {
-        todo!();
+        assert_eq!(process_part2(INPUT1), 2);
     }
 }
