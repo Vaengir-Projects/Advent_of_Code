@@ -40,7 +40,7 @@ impl Direction {
 }
 
 fn check_adjacent(
-    matrix: &Vec<Vec<PipeType>>,
+    matrix: &[Vec<PipeType>],
     row: i32,
     column: i32,
     direction: Direction,
@@ -54,7 +54,7 @@ fn check_adjacent(
     if let Some(row_vec) = matrix.get(row as usize) {
         if let Some(element) = row_vec.get(column as usize) {
             return Some(Pipe {
-                pipe: element.clone(),
+                pipe: *element,
                 distance: 1,
                 index: (row.try_into().unwrap(), column.try_into().unwrap()),
                 path_to_here: direction,
@@ -120,10 +120,10 @@ pub fn process_part1(input: &str) -> usize {
                 .map(|col_index| (row_index, col_index))
         })
         .unwrap();
-    let top = vec![PipeType::NS, PipeType::SW, PipeType::SE];
-    let right = vec![PipeType::EW, PipeType::NW, PipeType::SW];
-    let bottom = vec![PipeType::NS, PipeType::SW, PipeType::SE];
-    let left = vec![PipeType::EW, PipeType::SE, PipeType::NE];
+    let top = [PipeType::NS, PipeType::SW, PipeType::SE];
+    let right = [PipeType::EW, PipeType::NW, PipeType::SW];
+    let bottom = [PipeType::NS, PipeType::SW, PipeType::SE];
+    let left = [PipeType::EW, PipeType::SE, PipeType::NE];
     let mut adjacent: Vec<Pipe> = Vec::new();
     for direction in Direction::iterator() {
         if let Some(element) = check_adjacent(
@@ -132,18 +132,18 @@ pub fn process_part1(input: &str) -> usize {
             start_column.try_into().unwrap(),
             direction,
         ) {
-            if direction == Direction::Top && top.contains(&element.pipe) {
-                adjacent.push(element);
-            } else if direction == Direction::Right && right.contains(&element.pipe) {
-                adjacent.push(element);
-            } else if direction == Direction::Bottom && bottom.contains(&element.pipe) {
-                adjacent.push(element);
-            } else if direction == Direction::Left && left.contains(&element.pipe) {
+            if direction == Direction::Top
+                && top.contains(&element.pipe)
+                && direction == Direction::Right
+                || right.contains(&element.pipe)
+                || direction == Direction::Bottom && bottom.contains(&element.pipe)
+                || direction == Direction::Left && left.contains(&element.pipe)
+            {
                 adjacent.push(element);
             }
         }
     }
-    let first: Pipe = adjacent[0].clone();
+    let first: Pipe = adjacent[0];
     loop_around(&first, &matrix)
 }
 
