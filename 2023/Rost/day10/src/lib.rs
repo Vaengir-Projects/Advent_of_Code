@@ -132,12 +132,10 @@ pub fn process_part1(input: &str) -> usize {
             start_column.try_into().unwrap(),
             direction,
         ) {
-            if direction == Direction::Top
-                && top.contains(&element.pipe)
-                && direction == Direction::Right
-                || right.contains(&element.pipe)
-                || direction == Direction::Bottom && bottom.contains(&element.pipe)
-                || direction == Direction::Left && left.contains(&element.pipe)
+            if (direction == Direction::Top && top.contains(&element.pipe))
+                || (direction == Direction::Right && right.contains(&element.pipe))
+                || (direction == Direction::Bottom && bottom.contains(&element.pipe))
+                || (direction == Direction::Left && left.contains(&element.pipe))
             {
                 adjacent.push(element);
             }
