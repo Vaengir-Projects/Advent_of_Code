@@ -145,8 +145,121 @@ pub fn process_part1(input: &str) -> usize {
     loop_around(&first, &matrix)
 }
 
-pub fn process_part2(_input: &str) -> usize {
-    todo!();
+#[derive(Debug, Clone)]
+struct Pipe2 {
+    value: char,
+    dirs: Vec<Dir>,
+}
+
+#[derive(Debug, Clone)]
+enum Dir {
+    North(Box<Dir>),
+    East(Box<Dir>),
+    South(Box<Dir>),
+    West(Box<Dir>),
+}
+
+pub fn process_part2(input: &str) -> usize {
+    let mut matrix: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let (mut row, mut column) = matrix
+        .iter()
+        .enumerate()
+        .find_map(|(row_index, row)| {
+            row.iter()
+                .position(|element| *element == 'S')
+                .map(|col_index| (row_index, col_index))
+        })
+        .unwrap();
+    if matrix[row - 1][column] == '|'
+        || matrix[row - 1][column] == '7'
+        || matrix[row - 1][column] == 'F'
+    {
+        row -= 1;
+        match matrix[row][column] {
+            '|' => {
+                matrix[row][column] = 'P';
+                row -= 1;
+            }
+            '7' => {
+                matrix[row][column] = 'P';
+                column -= 1;
+            }
+            'F' => {
+                matrix[row][column] = 'P';
+                column += 1;
+            }
+            _ => panic!("Error while matching start: North"),
+        }
+    } else if matrix[row][column + 1] == '-'
+        || matrix[row][column + 1] == '7'
+        || matrix[row][column + 1] == 'J'
+    {
+        column += 1;
+        match matrix[row][column] {
+            '-' => {
+                matrix[row][column] = 'P';
+                column += 1;
+            }
+            //  NOTE: Here
+            '7' => {
+                matrix[row][column] = 'P';
+                row += 1;
+            }
+            'J' => {
+                matrix[row][column] = 'P';
+                column += 1;
+            }
+            _ => panic!("Error while matching start: East"),
+        }
+    } else if matrix[row + 1][column] == '|'
+        || matrix[row + 1][column] == 'L'
+        || matrix[row + 1][column] == 'J'
+    {
+        column += 1;
+        match matrix[row][column] {
+            '|' => {
+                matrix[row][column] = 'P';
+                row -= 1;
+            }
+            'L' => {
+                matrix[row][column] = 'P';
+                column -= 1;
+            }
+            'J' => {
+                matrix[row][column] = 'P';
+                column += 1;
+            }
+            _ => panic!("Error while matching start: South"),
+        }
+    } else if matrix[row][column + 1] == '-'
+        || matrix[row][column + 1] == '7'
+        || matrix[row][column + 1] == 'J'
+    {
+        column += 1;
+        match matrix[row][column] {
+            '-' => {
+                matrix[row][column] = 'P';
+                row -= 1;
+            }
+            '7' => {
+                matrix[row][column] = 'P';
+                column -= 1;
+            }
+            'J' => {
+                matrix[row][column] = 'P';
+                column += 1;
+            }
+            _ => panic!("Error while matching start: West"),
+        }
+    }
+    for row in matrix {
+        for cell in row {
+            print!("{}", cell);
+        }
+        println!();
+    }
+    dbg!(row, column);
+    2
 }
 
 #[cfg(test)]
@@ -167,6 +280,40 @@ SJ.L7
 |F--J
 LJ...";
 
+    const INPUT3: &str = "\
+...........
+.S-------7.
+.|F-----7|.
+.||.....||.
+.||.....||.
+.|L-7.F-J|.
+.|..|.|..|.
+.L--J.L--J.
+...........";
+
+    const INPUT4: &str = "\
+..........
+.S------7.
+.|F----7|.
+.||....||.
+.||....||.
+.|L-7F-J|.
+.|..||..|.
+.L--JL--J.
+..........";
+
+    const INPUT5: &str = "\
+.F----7F7F7F7F-7....
+.|F--7||||||||FJ....
+.||.FJ||||||||L7....
+FJL7L7LJLJ||LJ.L-7..
+L--J.L7...LJS7F-7L7.
+....F-J..F7FJ|L7L7L7
+....L7.F7||L7|.L7L7|
+.....|FJLJ|FJ|F7|.LJ
+....FJL-7.||.||||...
+....L---J.LJ.LJLJ...";
+
     #[test]
     fn part1_works_1() {
         assert_eq!(process_part1(INPUT1), 4);
@@ -178,7 +325,17 @@ LJ...";
     }
 
     #[test]
-    fn part2_works() {
-        todo!();
+    fn part2_works_1() {
+        assert_eq!(process_part2(INPUT3), 4);
+    }
+
+    #[test]
+    fn part2_works_2() {
+        assert_eq!(process_part2(INPUT4), 4);
+    }
+
+    #[test]
+    fn part2_works_3() {
+        assert_eq!(process_part2(INPUT5), 8);
     }
 }
