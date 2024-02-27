@@ -145,18 +145,128 @@ pub fn process_part1(input: &str) -> usize {
     loop_around(&first, &matrix)
 }
 
-#[derive(Debug, Clone)]
-struct Pipe2 {
-    value: char,
-    dirs: Vec<Dir>,
+fn build_pipe(matrix: &mut [Vec<char>], mut row: usize, mut column: usize, mut dir: Direction) {
+    while matrix[row][column] != 'S' {
+        if dir == Direction::Top {
+            match matrix[row][column] {
+                '|' => {
+                    matrix[row][column] = 'P';
+                    row -= 1;
+                    dir = Direction::Top;
+                }
+                '7' => {
+                    matrix[row][column] = 'P';
+                    column -= 1;
+                    dir = Direction::Left;
+                }
+                'F' => {
+                    matrix[row][column] = 'P';
+                    column += 1;
+                    dir = Direction::Right;
+                }
+                _ => panic!("Error while matching: North"),
+            }
+        } else if dir == Direction::Right {
+            match matrix[row][column] {
+                '-' => {
+                    matrix[row][column] = 'P';
+                    column += 1;
+                    dir = Direction::Right;
+                }
+                '7' => {
+                    matrix[row][column] = 'P';
+                    row += 1;
+                    dir = Direction::Bottom;
+                }
+                'J' => {
+                    matrix[row][column] = 'P';
+                    row -= 1;
+                    dir = Direction::Top;
+                }
+                _ => panic!("Error while matching: East"),
+            }
+        } else if dir == Direction::Bottom {
+            match matrix[row][column] {
+                '|' => {
+                    matrix[row][column] = 'P';
+                    row += 1;
+                    dir = Direction::Bottom;
+                }
+                'L' => {
+                    matrix[row][column] = 'P';
+                    column += 1;
+                    dir = Direction::Right;
+                }
+                'J' => {
+                    matrix[row][column] = 'P';
+                    column -= 1;
+                    dir = Direction::Left;
+                }
+                _ => {
+                    panic!("Error while matching: South");
+                }
+            }
+        } else if dir == Direction::Left {
+            match matrix[row][column] {
+                '-' => {
+                    matrix[row][column] = 'P';
+                    column -= 1;
+                    dir = Direction::Left;
+                }
+                'L' => {
+                    matrix[row][column] = 'P';
+                    row -= 1;
+                    dir = Direction::Top;
+                }
+                'F' => {
+                    matrix[row][column] = 'P';
+                    row += 1;
+                    dir = Direction::Bottom;
+                }
+                _ => panic!("Error while matching: West"),
+            }
+        }
+    }
 }
 
-#[derive(Debug, Clone)]
-enum Dir {
-    North(Box<Dir>),
-    East(Box<Dir>),
-    South(Box<Dir>),
-    West(Box<Dir>),
+fn set_edge(matrix: &mut [Vec<char>]) {
+    for col_nr in 0..matrix[0].len() {
+        matrix[0][col_nr] = 'E';
+        matrix[matrix.len() - 1][col_nr] = 'E';
+    }
+    let matrix_row_len = matrix[0].len() - 1;
+    for row_nr in 0..matrix.len() {
+        matrix[row_nr][0] = 'E';
+        matrix[row_nr][matrix_row_len] = 'E';
+    }
+}
+
+fn get_adjacent(matrix: &mut [Vec<char>]) {
+    for i in 0..matrix.len() {
+        for j in 0..matrix[i].len() {
+            if matrix[i][j] == 'E' {
+                // Iterate over adjacent cells (within a 3x3 square)
+                for di in -1..=1 {
+                    for dj in -1..=1 {
+                        let ni = i as isize + di;
+                        let nj = j as isize + dj;
+                        // Check if the adjacent cell is within bounds and not the current cell
+                        if ni >= 0
+                            && ni < matrix.len() as isize
+                            && nj >= 0
+                            && nj < matrix[i].len() as isize
+                            && !(di == 0 && dj == 0)
+                            && matrix[ni as usize][nj as usize] != 'E'
+                            && matrix[ni as usize][nj as usize] != 'P'
+                            && matrix[ni as usize][nj as usize] != 'S'
+                        {
+                            matrix[ni as usize][nj as usize] = 'E';
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 pub fn process_part2(input: &str) -> usize {
@@ -170,6 +280,7 @@ pub fn process_part2(input: &str) -> usize {
                 .map(|col_index| (row_index, col_index))
         })
         .unwrap();
+    let dir: Direction;
     if matrix[row - 1][column] == '|'
         || matrix[row - 1][column] == '7'
         || matrix[row - 1][column] == 'F'
@@ -179,14 +290,17 @@ pub fn process_part2(input: &str) -> usize {
             '|' => {
                 matrix[row][column] = 'P';
                 row -= 1;
+                dir = Direction::Top;
             }
             '7' => {
                 matrix[row][column] = 'P';
                 column -= 1;
+                dir = Direction::Left;
             }
             'F' => {
                 matrix[row][column] = 'P';
                 column += 1;
+                dir = Direction::Right;
             }
             _ => panic!("Error while matching start: North"),
         }
@@ -199,15 +313,17 @@ pub fn process_part2(input: &str) -> usize {
             '-' => {
                 matrix[row][column] = 'P';
                 column += 1;
+                dir = Direction::Right;
             }
-            //  NOTE: Here
             '7' => {
                 matrix[row][column] = 'P';
                 row += 1;
+                dir = Direction::Bottom;
             }
             'J' => {
                 matrix[row][column] = 'P';
-                column += 1;
+                row -= 1;
+                dir = Direction::Top;
             }
             _ => panic!("Error while matching start: East"),
         }
@@ -219,47 +335,61 @@ pub fn process_part2(input: &str) -> usize {
         match matrix[row][column] {
             '|' => {
                 matrix[row][column] = 'P';
-                row -= 1;
+                row += 1;
+                dir = Direction::Bottom;
             }
             'L' => {
                 matrix[row][column] = 'P';
-                column -= 1;
+                column += 1;
+                dir = Direction::Right;
             }
             'J' => {
                 matrix[row][column] = 'P';
-                column += 1;
+                column -= 1;
+                dir = Direction::Left;
             }
             _ => panic!("Error while matching start: South"),
         }
-    } else if matrix[row][column + 1] == '-'
-        || matrix[row][column + 1] == '7'
-        || matrix[row][column + 1] == 'J'
+    } else if matrix[row][column - 1] == '-'
+        || matrix[row][column - 1] == 'L'
+        || matrix[row][column - 1] == 'F'
     {
         column += 1;
         match matrix[row][column] {
             '-' => {
                 matrix[row][column] = 'P';
                 row -= 1;
+                dir = Direction::Left;
             }
-            '7' => {
+            'L' => {
                 matrix[row][column] = 'P';
-                column -= 1;
+                row -= 1;
+                dir = Direction::Top;
             }
-            'J' => {
+            'F' => {
                 matrix[row][column] = 'P';
-                column += 1;
+                row += 1;
+                dir = Direction::Bottom;
             }
             _ => panic!("Error while matching start: West"),
         }
+    } else {
+        panic!("Dir not initialized");
     }
-    for row in matrix {
+    build_pipe(&mut matrix, row, column, dir);
+    set_edge(&mut matrix);
+    get_adjacent(&mut matrix);
+    for row in &matrix {
         for cell in row {
-            print!("{}", cell);
+            print!("{} ", cell);
         }
         println!();
     }
-    dbg!(row, column);
-    2
+    matrix
+        .iter()
+        .flat_map(|row| row.iter())
+        .filter(|&&c| c != 'S' && c != 'P' && c != 'E')
+        .count()
 }
 
 #[cfg(test)]
@@ -303,16 +433,18 @@ LJ...";
 ..........";
 
     const INPUT5: &str = "\
-.F----7F7F7F7F-7....
-.|F--7||||||||FJ....
-.||.FJ||||||||L7....
-FJL7L7LJLJ||LJ.L-7..
-L--J.L7...LJS7F-7L7.
-....F-J..F7FJ|L7L7L7
-....L7.F7||L7|.L7L7|
-.....|FJLJ|FJ|F7|.LJ
-....FJL-7.||.||||...
-....L---J.LJ.LJLJ...";
+......................
+..F----7F7F7F7F-7.....
+..|F--7||||||||FJ.....
+..||.FJ||||||||L7.....
+.FJL7L7LJLJ||LJ.L-7...
+.L--J.L7...LJS7F-7L7..
+.....F-J..F7FJ|L7L7L7.
+.....L7.F7||L7|.L7L7|.
+......|FJLJ|FJ|F7|.LJ.
+.....FJL-7.||.||||....
+.....L---J.LJ.LJLJ....
+......................";
 
     #[test]
     fn part1_works_1() {
