@@ -17,7 +17,7 @@ impl Node1 {
 
     fn build_structure(input_nodes: Vec<Node1>) -> Vec<Self> {
         if input_nodes.iter().all(|x| x.value == 0) {
-            return input_nodes;
+            input_nodes
         } else {
             let nodes = input_nodes[1..]
                 .iter()
@@ -57,7 +57,6 @@ pub fn process_part1(input: &str) -> i32 {
     for line in lines {
         let basic: Vec<i32> = line
             .split_whitespace()
-            .into_iter()
             .map(|num| num.parse::<i32>().unwrap())
             .collect();
         let basic_nodes = Node1::parse(basic);
@@ -86,7 +85,7 @@ impl Node2 {
 
     fn build_structure(input_nodes: Vec<Node2>) -> Vec<Self> {
         if input_nodes.iter().all(|x| x.value == 0) {
-            return input_nodes;
+            input_nodes
         } else {
             let nodes = input_nodes[1..]
                 .iter()
@@ -126,7 +125,6 @@ pub fn process_part2(input: &str) -> i32 {
     for line in lines {
         let basic: Vec<i32> = line
             .split_whitespace()
-            .into_iter()
             .map(|num| num.parse::<i32>().unwrap())
             .collect();
         let basic_nodes = Node2::parse(basic);

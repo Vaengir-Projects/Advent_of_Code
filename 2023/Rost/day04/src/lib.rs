@@ -1,6 +1,5 @@
 #[derive(Debug, Clone)]
 pub struct Card {
-    id: usize,
     winners: Vec<usize>,
     numbers: Vec<usize>,
     amount: usize,
@@ -9,24 +8,21 @@ pub struct Card {
 impl Card {
     pub fn build(line: &str) -> Card {
         let mut split = line.split(':');
-        let id = split.next().unwrap().split_whitespace().nth(1).unwrap();
+        let _id = split.next().unwrap().split_whitespace().nth(1).unwrap();
         let mut split = split.next().unwrap().split('|');
         let winners: Vec<usize> = split
             .next()
             .unwrap()
             .split_whitespace()
-            .into_iter()
             .flat_map(|x| x.parse::<usize>())
             .collect();
         let numbers: Vec<usize> = split
             .next()
             .unwrap()
             .split_whitespace()
-            .into_iter()
             .flat_map(|x| x.parse::<usize>())
             .collect();
         Card {
-            id: id.parse().unwrap(),
             winners,
             numbers,
             amount: 1,
@@ -67,13 +63,13 @@ pub fn process_part2(input: &str) -> usize {
     for i in 0..cards.len() {
         let mut num_winners = 0;
         for number in &cards[i].numbers {
-            if cards[i].winners.contains(&number) {
+            if cards[i].winners.contains(number) {
                 num_winners += 1;
             }
         }
         for j in 1..=num_winners {
             if i + j < cards.len() {
-                cards[i + j].amount += 1 * cards[i].amount;
+                cards[i + j].amount += cards[i].amount;
             }
         }
     }

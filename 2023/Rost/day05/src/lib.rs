@@ -1,4 +1,4 @@
-use std::{f32::INFINITY, cell::RefCell, iter::from_fn};
+use std::{cell::RefCell, iter::from_fn};
 
 pub fn process_part1(input: &str) -> usize {
     let sections: Vec<&str> = input.split("\n\n").collect();
@@ -94,7 +94,7 @@ pub fn process_part2(input: &str) -> usize {
             current += 1;
         }
     }
-    let mut result: usize = INFINITY as usize;
+    let mut result: usize = f64::INFINITY as usize;
     for mut seed in seeds {
         let maps: Vec<Vec<Vec<usize>>> = sections[1..]
             .iter()

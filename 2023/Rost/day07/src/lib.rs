@@ -211,10 +211,6 @@ pub fn process_part2(input: &str) -> usize {
     let mut result: usize = 0;
     let mut hands: Vec<Hand> = input.lines().map(Hand::new2).collect();
     hands.sort();
-    // for hand in hands.iter() {
-    //     println!("{:?}, {:?}", hand.cards, hand.bid);
-    // }
-    dbg!(&hands);
     for (i, hand) in hands.iter().enumerate() {
         result += (i + 1) * hand.bid;
     }

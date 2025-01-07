@@ -235,10 +235,10 @@ fn set_edge(matrix: &mut [Vec<char>]) {
         matrix[matrix.len() - 1][col_nr] = 'E';
     }
     let matrix_row_len = matrix[0].len() - 1;
-    for row_nr in 0..matrix.len() {
+    (0..matrix.len()).for_each(|row_nr| {
         matrix[row_nr][0] = 'E';
         matrix[row_nr][matrix_row_len] = 'E';
-    }
+    });
 }
 
 fn get_adjacent(matrix: &mut [Vec<char>]) {
