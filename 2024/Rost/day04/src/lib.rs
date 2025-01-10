@@ -205,6 +205,38 @@ fn check_xmas(infos: Infos, grid: &[Vec<char>]) -> bool {
     }
 }
 
+pub fn process_part2(input: &str) -> usize {
+    let mut sum: usize = 0;
+    let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    for (i, line) in grid.iter().enumerate() {
+        for (j, char) in line.iter().enumerate() {
+            if *char == 'A' {
+                if i < 1 || i >= grid.len() - 1 || j < 1 || j >= grid[i].len() - 1 {
+                    continue;
+                }
+                if chars(i, j, &grid) {
+                    sum += 1;
+                }
+            }
+        }
+    }
+
+    sum
+}
+
+fn chars(i: usize, j: usize, grid: &[Vec<char>]) -> bool {
+    let chars: Vec<char> = vec![
+        grid[i - 1][j - 1],
+        grid[i - 1][j + 1],
+        grid[i + 1][j - 1],
+        grid[i + 1][j + 1],
+    ];
+
+    chars.iter().filter(|&&c| c == 'M').count() == 2
+        && chars.iter().filter(|&&c| c == 'S').count() == 2
+        && chars[1] != chars[2]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -228,6 +260,18 @@ MXMXAXMASX";
 XMAS.S
 .X....";
 
+    const INPUT3: &str = "\
+MSMMXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX";
+
     #[test]
     fn part1_works_1() {
         assert_eq!(process_part1(INPUT1), 18);
@@ -236,5 +280,15 @@ XMAS.S
     #[test]
     fn part1_works_2() {
         assert_eq!(process_part1(INPUT2), 4);
+    }
+
+    #[test]
+    fn part2_works_1() {
+        assert_eq!(process_part2(INPUT1), 9);
+    }
+
+    #[test]
+    fn part2_works_2() {
+        assert_eq!(process_part2(INPUT3), 8);
     }
 }
